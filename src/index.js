@@ -13,13 +13,17 @@ const customers = [];
 app.post("/account", (req, res) => {
   const { cpf, name } = req.body;
 
-  if (customers.find((p) => p.cpf === cpf)) {
-    return res.json({ msg: "CPF already registered" });
+  if (!cpf) {
+    return res.status(400).json({ msg: "Invalid CPF." });
   }
 
-  const id = uuid();
+  let accountAlreadyExists = customers.some((c) => c.cpf === cpf);
 
-  const account = { id, name, cpf, statement: [] };
+  if (accountAlreadyExists) {
+    return res.status(400).json({ msg: "CPF already registered." });
+  }
+
+  const account = { id: uuid(), name, cpf, statement: [] };
 
   customers.push(account);
 
