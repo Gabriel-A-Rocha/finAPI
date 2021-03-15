@@ -54,3 +54,20 @@ app.get("/statement", verifyIfAccountExists, (req, res) => {
 
   return res.json(customer.statement);
 });
+
+app.post("/deposit", verifyIfAccountExists, (req, res) => {
+  const { amount, description } = req.body;
+
+  const { customer } = req;
+
+  const depositInformation = {
+    amount,
+    description,
+    created_at: new Date(),
+    type: "credit",
+  };
+
+  customer.statement.push(depositInformation);
+
+  return res.status(201).json(customer);
+});
