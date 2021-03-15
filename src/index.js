@@ -14,13 +14,16 @@ const customers = [];
 const verifyIfAccountExists = (req, res, next) => {
   const { cpf } = req.headers;
 
-  const accountExists = customers.some((c) => c.cpf === cpf);
+  const account = customers.find((c) => c.cpf === cpf);
 
-  if (!cpf || !accountExists) {
+  if (!cpf || !account) {
     return res
       .status(400)
       .json({ error: "Middleware: Account does not exist." });
   }
+
+  // Add customer object to the request
+  req.customer = account;
 
   return next();
 };
@@ -46,9 +49,8 @@ app.post("/account", (req, res) => {
 });
 
 app.get("/statement", verifyIfAccountExists, (req, res) => {
-  const { cpf } = req.headers;
+  const { customer } = req;
+  console.log("🚀 ~ file: index.js ~ line 53 ~ app.get ~ customer", customer);
 
-  const account = customers.find((c) => c.cpf === cpf);
-
-  return res.json(account.statement);
+  return res.json(customer.statement);
 });
