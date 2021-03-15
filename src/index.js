@@ -10,14 +10,29 @@ app.listen(port, () => console.log(`Server running at port ${port}`));
 
 const customers = [];
 
+// Middleware
+const verifyIfAccountExists = (req, res, next) => {
+  const { cpf } = req.headers;
+
+  const accountExists = customers.some((c) => c.cpf === cpf);
+
+  if (!cpf || !accountExists) {
+    return res
+      .status(400)
+      .json({ error: "Middleware: Account does not exist." });
+  }
+
+  return next();
+};
+
 app.post("/account", (req, res) => {
   const { cpf, name } = req.body;
 
   if (!cpf) {
-    return res.status(400).json({ error: "Invalid CPF." });
+    return res.status(400).json({ error: "No CPF provided." });
   }
 
-  let accountAlreadyExists = customers.some((c) => c.cpf === cpf);
+  const accountAlreadyExists = customers.some((c) => c.cpf === cpf);
 
   if (accountAlreadyExists) {
     return res.status(400).json({ error: "CPF already registered." });
@@ -30,14 +45,10 @@ app.post("/account", (req, res) => {
   return res.status(201).json(account);
 });
 
-app.get("/statement", (req, res) => {
+app.get("/statement", verifyIfAccountExists, (req, res) => {
   const { cpf } = req.headers;
 
   const account = customers.find((c) => c.cpf === cpf);
-
-  if (!account) {
-    return res.status(400).json({ error: "Account not found." });
-  }
 
   return res.json(account.statement);
 });
