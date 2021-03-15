@@ -30,8 +30,8 @@ app.post("/account", (req, res) => {
   return res.status(201).json(account);
 });
 
-app.get("/statement/:cpf", (req, res) => {
-  const { cpf } = req.params;
+app.get("/statement", (req, res) => {
+  const { cpf } = req.headers;
 
   const account = customers.find((c) => c.cpf === cpf);
 
