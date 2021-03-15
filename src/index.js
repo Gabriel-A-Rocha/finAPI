@@ -14,13 +14,13 @@ app.post("/account", (req, res) => {
   const { cpf, name } = req.body;
 
   if (!cpf) {
-    return res.status(400).json({ msg: "Invalid CPF." });
+    return res.status(400).json({ error: "Invalid CPF." });
   }
 
   let accountAlreadyExists = customers.some((c) => c.cpf === cpf);
 
   if (accountAlreadyExists) {
-    return res.status(400).json({ msg: "CPF already registered." });
+    return res.status(400).json({ error: "CPF already registered." });
   }
 
   const account = { id: uuid(), name, cpf, statement: [] };
@@ -28,4 +28,16 @@ app.post("/account", (req, res) => {
   customers.push(account);
 
   return res.status(201).json(account);
+});
+
+app.get("/statement/:cpf", (req, res) => {
+  const { cpf } = req.params;
+
+  const account = customers.find((c) => c.cpf === cpf);
+
+  if (!account) {
+    return res.status(400).json({ error: "Account not found." });
+  }
+
+  return res.json(account.statement);
 });
