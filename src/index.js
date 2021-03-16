@@ -50,7 +50,6 @@ app.post("/account", (req, res) => {
 
 app.get("/statement", verifyIfAccountExists, (req, res) => {
   const { customer } = req;
-  console.log("🚀 ~ file: index.js ~ line 53 ~ app.get ~ customer", customer);
 
   return res.json(customer.statement);
 });
@@ -68,6 +67,39 @@ app.post("/deposit", verifyIfAccountExists, (req, res) => {
   };
 
   customer.statement.push(depositInformation);
+
+  return res.status(201).json(customer);
+});
+
+const getBalance = (statement) => {
+  const balance = statement.reduce((acc, transaction) => {
+    const { type, amount } = transaction;
+
+    return type === "credit" ? (acc += amount) : (acc -= amount);
+  }, 0);
+
+  return balance;
+};
+
+app.post("/withdraw", verifyIfAccountExists, (req, res) => {
+  const { amount } = req.body;
+
+  const { customer } = req;
+
+  let balance = getBalance(customer.statement);
+
+  if (balance < amount) {
+    return res.status(400).json({ error: "Insufficient funds." });
+  }
+
+  const withdrawInformation = {
+    amount,
+    description,
+    created_at: new Date(),
+    type: "debit",
+  };
+
+  customer.statement.push(withdrawInformation);
 
   return res.status(201).json(customer);
 });
