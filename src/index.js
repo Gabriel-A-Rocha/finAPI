@@ -83,7 +83,6 @@ const getBalance = (statement) => {
 
 app.post("/withdraw", verifyIfAccountExists, (req, res) => {
   const { amount } = req.body;
-
   const { customer } = req;
 
   let balance = getBalance(customer.statement);
@@ -92,14 +91,17 @@ app.post("/withdraw", verifyIfAccountExists, (req, res) => {
     return res.status(400).json({ error: "Insufficient funds." });
   }
 
+  const balanceAfterWithdrawal = balance - amount;
+
   const withdrawInformation = {
     amount,
-    description,
     created_at: new Date(),
     type: "debit",
   };
 
   customer.statement.push(withdrawInformation);
 
-  return res.status(201).json(customer);
+  return res
+    .status(201)
+    .json(`Withdraw: ${amount}. Balance: ${balanceAfterWithdrawal}`);
 });

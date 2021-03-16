@@ -17,5 +17,5 @@
 [x]- Should not be able to check balance of a non existing account
 [x]- Should not be able to make a deposit to a non existing account
 [x]- Should not be able to withdraw from a non existing account
+[x]- Should not be able to withdraw when there is not enough funds
 []- Should not be able to delete a non existing account
-[]- Should not be able to withdraw when there is not enough funds
