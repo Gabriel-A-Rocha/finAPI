@@ -8,7 +8,7 @@ app.use(express.json());
 const port = 3333;
 app.listen(port, () => console.log(`Server running at port ${port}`));
 
-const customers = [];
+let customers = [];
 
 // Middleware
 const verifyIfAccountExists = (req, res, next) => {
@@ -115,4 +115,26 @@ app.post("/withdraw", verifyIfAccountExists, (req, res) => {
   return res
     .status(201)
     .json(`Withdraw: ${amount}. Balance: ${balanceAfterWithdrawal}`);
+});
+
+app.put("/account", verifyIfAccountExists, (req, res) => {
+  const { customer } = req;
+  const { name } = req.body;
+
+  if (!name) {
+    return res.status(400).json({ error: "Empty parameter." });
+  }
+
+  const newArray = customers.map((c) => {
+    if (c.cpf === customer.cpf) {
+      return {
+        ...c,
+        name,
+      };
+    }
+  });
+
+  customers = newArray;
+
+  res.json(newArray);
 });
