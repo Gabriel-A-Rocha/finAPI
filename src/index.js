@@ -56,19 +56,10 @@ app.get("/statement", verifyIfAccountExists, (req, res) => {
 
 app.get("/statement/date", verifyIfAccountExists, (req, res) => {
   const { customer } = req;
-
   const { date } = req.query;
 
-  const formattedDate = new Date(date + " 00:00");
-
-  const statementsArray = customer.statement;
-
-  const statementsFound = statementsArray.filter((s) => {
-    if (
-      s.created_at.toDateString() === new Date(formattedDate).toDateString()
-    ) {
-      return s;
-    }
+  const statementsFound = customer.statement.filter((s) => {
+    return s.created_at.toDateString() === new Date(date).toDateString();
   });
 
   return res.send(statementsFound);
