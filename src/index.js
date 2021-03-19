@@ -14,9 +14,13 @@ let customers = [];
 const verifyIfAccountExists = (req, res, next) => {
   const { cpf } = req.headers;
 
+  if (!cpf) {
+    return res.status(400).json({ error: "Invalid cpf." });
+  }
+
   const account = customers.find((c) => c.cpf === cpf);
 
-  if (!cpf || !account) {
+  if (!account) {
     return res
       .status(400)
       .json({ error: "Middleware: Account does not exist." });
@@ -32,7 +36,7 @@ app.post("/account", (req, res) => {
   const { cpf, name } = req.body;
 
   if (!cpf) {
-    return res.status(400).json({ error: "No CPF provided." });
+    return res.status(400).json({ error: "Invalid CPF" });
   }
 
   const accountAlreadyExists = customers.some((c) => c.cpf === cpf);
@@ -94,15 +98,14 @@ const getBalance = (statement) => {
 
 app.post("/withdraw", verifyIfAccountExists, (req, res) => {
   const { amount } = req.body;
+
   const { customer } = req;
 
-  let balance = getBalance(customer.statement);
+  const balance = getBalance(customer.statement);
 
   if (balance < amount) {
     return res.status(400).json({ error: "Insufficient funds." });
   }
-
-  const balanceAfterWithdrawal = balance - amount;
 
   const withdrawInformation = {
     amount,
@@ -114,7 +117,7 @@ app.post("/withdraw", verifyIfAccountExists, (req, res) => {
 
   return res
     .status(201)
-    .json(`Withdraw: ${amount}. Balance: ${balanceAfterWithdrawal}`);
+    .json(`Withdraw: ${amount}. Balance: ${balance - amount}`);
 });
 
 app.put("/account", verifyIfAccountExists, (req, res) => {
@@ -125,16 +128,27 @@ app.put("/account", verifyIfAccountExists, (req, res) => {
     return res.status(400).json({ error: "Empty parameter." });
   }
 
-  const newArray = customers.map((c) => {
-    if (c.cpf === customer.cpf) {
-      return {
-        ...c,
-        name,
-      };
-    }
-  });
+  customer.name = name;
 
-  customers = newArray;
+  res.json(customer);
+});
 
-  res.json(newArray);
+app.get("/account", verifyIfAccountExists, (req, res) => {
+  const { customer } = req;
+
+  return res.json(customer);
+});
+
+app.delete("/account", verifyIfAccountExists, (req, res) => {
+  const { customer } = req;
+
+  const updatedCustomersArray = customers.filter((c) => c.cpf !== customer.cpf);
+
+  customers = updatedCustomersArray;
+
+  return res.status(200).json(customers);
+});
+
+app.get("/accounts", (req, res) => {
+  return res.status(200).json(customers);
 });
