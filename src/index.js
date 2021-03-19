@@ -96,6 +96,14 @@ const getBalance = (statement) => {
   return balance;
 };
 
+app.get("/balance", verifyIfAccountExists, (req, res) => {
+  const { customer } = req;
+
+  const balance = getBalance(customer.statement);
+
+  return res.status(200).json(`Your balance is ${balance}`);
+});
+
 app.post("/withdraw", verifyIfAccountExists, (req, res) => {
   const { amount } = req.body;
 

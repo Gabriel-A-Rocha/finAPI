@@ -4,7 +4,8 @@
 
 [x] - Should be able to create an account
 [x] - Should be able to check the bank statement
-[x] - Should be able to check balance in a particular date
+[x] - Should be able to check statement in a particular date
+[x] - Should be able to check balance
 [x] - Should be able to make a deposit
 [x] - Should be able to make a withdraw
 [x] - Should be able to update account name
